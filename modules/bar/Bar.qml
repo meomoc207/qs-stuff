@@ -10,7 +10,7 @@ PanelWindow {
     screen: modelData
 
     anchors { top: true; left: true; right: true }
-    implicitHeight: 35
+    implicitHeight: 40
     color: Theme.night
 
     WlrLayershell.namespace: "quickshell:bar"
@@ -24,7 +24,9 @@ PanelWindow {
 	Rectangle { width: 1; height: 16; color: Theme.mist }
         Workspaces { screen: bar.modelData }
 
-        Item { Layout.fillWidth: true }
+	Item { Layout.fillWidth: true }
+	Media {}
+	Rectangle { width: 1; height: 16; color: Theme.mist }
 	Network {}
 	Rectangle { width: 1; height: 16; color: Theme.mist }
         Cpu {}
