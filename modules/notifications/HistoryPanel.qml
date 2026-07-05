@@ -8,7 +8,21 @@ PanelWindow {
     id: panel
     required property var modelData
     screen: modelData
-    visible: NotificationService.panelScreen === modelData
+
+    property bool wantOpen: NotificationService.panelScreen === modelData
+    property bool reallyVisible: wantOpen
+    visible: reallyVisible
+
+    onWantOpenChanged: {
+        if (wantOpen) reallyVisible = true
+        else closeTimer.start()
+    }
+
+    Timer {
+        id: closeTimer
+        interval: 200
+        onTriggered: panel.reallyVisible = false
+    }
 
     anchors { top: true; bottom: true; left: true; right: true }
     exclusiveZone: 0
@@ -24,11 +38,15 @@ PanelWindow {
 
     Rectangle {
         id: content
-        anchors { top: parent.top; left: parent.left; margins: 8 }
+        anchors { top: parent.top; left: parent.left; topMargin: 0; leftMargin: 0 }
         width: 420
-        height: 520
-        radius: 0
+        height: panel.wantOpen ? 520 : 0
+        clip: true
         color: Theme.night
+        opacity: panel.wantOpen ? 1 : 0
+
+        Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: 160 } }
 
         MouseArea {
             anchors.fill: parent
@@ -45,7 +63,7 @@ PanelWindow {
                 Text {
                     text: "Notifications"
                     color: Theme.mist
-                    font { family: Theme.fontFamily; bold: true; pixelSize: Theme.fontSize }
+                    font { family: Theme.fontFamily; bold: true; pixelSize: Theme.fontSizeLarge }
                     Layout.fillWidth: true
                 }
                 Text {
@@ -59,9 +77,12 @@ PanelWindow {
                 }
             }
 
+            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.umber }
+
             ListView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                clip: true
                 spacing: 6
                 model: NotificationService.history
 
@@ -69,7 +90,7 @@ PanelWindow {
                     required property var modelData
                     width: ListView.view.width
                     implicitHeight: entryContent.implicitHeight + 20
-                    radius: 8
+                    radius: 10
                     color: Theme.ash
 
                     RetainableLock {
@@ -93,7 +114,7 @@ PanelWindow {
                         Text {
                             text: modelData.body
                             color: Theme.bark
-                            font.family: { family: Theme.fontFamily; pixelSize: Theme.fontSizeSmall }
+                            font { family: Theme.fontFamily; pixelSize: Theme.fontSizeSmall }
                             Layout.fillWidth: true
                             wrapMode: Text.Wrap
                             visible: modelData.body.length > 0

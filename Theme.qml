@@ -13,7 +13,7 @@ QtObject {
     readonly property color rose: "#f6b6c9"
     readonly property color ember: "#e06b75"
     readonly property color honey: "#f5d76e"
-    readonly property string fontFamily: "Kosugi"
+    readonly property string fontFamily: "JetBrainsMono Nerd Font"
     readonly property int fontSize: 20
     readonly property int fontSizeLarge: 18
     readonly property int fontSizeSmall: 14

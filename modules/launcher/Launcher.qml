@@ -12,7 +12,25 @@ PanelWindow {
     screen: modelData
 
     property var hyprMonitor: Hyprland.monitorFor(modelData)
-    visible: LauncherState.open && (hyprMonitor?.focused ?? false)
+    property bool wantOpen: LauncherState.open && (hyprMonitor?.focused ?? false)
+    property bool reallyVisible: wantOpen
+    visible: reallyVisible
+
+    onWantOpenChanged: {
+        if (wantOpen) {
+            reallyVisible = true
+            searchInput.text = ""
+            searchInput.forceActiveFocus()
+        } else {
+            closeTimer.start()
+        }
+    }
+
+    Timer {
+        id: closeTimer
+        interval: 180
+        onTriggered: launcher.reallyVisible = false
+    }
 
     anchors { top: true; left: true; right: true; bottom: true }
     exclusiveZone: 0
@@ -21,13 +39,6 @@ PanelWindow {
     WlrLayershell.namespace: "quickshell:launcher"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-
-    onVisibleChanged: {
-        if (visible) {
-            searchInput.text = ""
-            searchInput.forceActiveFocus()
-        }
-    }
 
     MouseArea {
         anchors.fill: parent
@@ -64,11 +75,17 @@ PanelWindow {
 
     Rectangle {
         id: box
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 60 }
+        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 0 }
         width: 560
-        height: Math.min(480, 90 + resultsList.contentHeight)
-        radius: 12
+        property int fullHeight: Math.min(480, 90 + resultsList.contentHeight)
+        height: launcher.wantOpen ? fullHeight : 0
+        clip: true
+        radius: 0
         color: Theme.night
+        opacity: launcher.wantOpen ? 1 : 0
+
+        Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: 160 } }
 
         MouseArea {
             anchors.fill: parent
@@ -116,7 +133,7 @@ PanelWindow {
                     required property int index
                     width: ListView.view.width
                     height: 44
-                    radius: 8
+                    radius: 0
                     color: index === resultsList.currentIndex ? Theme.umber : "transparent"
 
                     RowLayout {

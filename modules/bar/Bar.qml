@@ -10,7 +10,7 @@ PanelWindow {
     screen: modelData
 
     anchors { top: true; left: true; right: true }
-    implicitHeight: 30
+    implicitHeight: 35
     color: Theme.night
 
     WlrLayershell.namespace: "quickshell:bar"
