@@ -29,4 +29,13 @@ QtObject {
             })
         }
     }
+
+    property Instantiator historyLocks: Instantiator {
+        model: root.history
+        delegate: RetainableLock {
+            required property var modelData
+            object: modelData
+            locked: true
+        }
+    }
 }
